@@ -25,6 +25,7 @@
 #include <errno.h>
 #include <sys/ioctl.h>
 #include <string.h>
+#include <iostream>
 
 #include <linux/spi/spidev.h>
 
@@ -76,15 +77,14 @@ bool SPI::setMode(uint8_t p_mode){
 
 }
 
-int SPI::xfer(uint8_t *p_txbuffer, uint32_t p_txlen, uint8_t *p_rxbuffer, uint32_t p_rxlen){
-    struct spi_ioc_transfer spi_message[2];
+int SPI::xfer(uint8_t *p_txbuffer, uint32_t p_txlen, uint8_t *p_rxbuffer){
+    struct spi_ioc_transfer spi_message[1];    
     memset(spi_message, 0, sizeof(spi_message));
-    
     spi_message[0].tx_buf = (unsigned long)p_txbuffer;
+    spi_message[0].rx_buf = (unsigned long)p_rxbuffer;
     spi_message[0].len = p_txlen;
-    spi_message[1].rx_buf = (unsigned long)p_rxbuffer;
-    spi_message[1].len = p_rxlen;
-    return ioctl(m_spifd, SPI_IOC_MESSAGE(2), spi_message);
+
+    return(ioctl(m_spifd, SPI_IOC_MESSAGE(1), spi_message))
 }
 
 int SPI::write(uint8_t *p_txbuffer, uint32_t p_txlen){
